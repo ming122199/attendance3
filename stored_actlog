@@ -1,0 +1,118 @@
+/*
+SQLyog Community v13.1.6 (64 bit)
+MySQL - 5.0.67-community-nt : Database - db_attendance
+*********************************************************************
+*/
+
+/*!40101 SET NAMES utf8 */;
+
+/*!40101 SET SQL_MODE=''*/;
+
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`db_attendance` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `db_attendance`;
+
+/*Table structure for table `tbl_actlog` */
+
+DROP TABLE IF EXISTS `tbl_actlog`;
+
+CREATE TABLE `tbl_actlog` (
+  `id` int(11) NOT NULL,
+  `emp_id` int(11) default NULL,
+  `username` varchar(45) default NULL,
+  `user_type` varchar(45) default NULL,
+  `date` date default NULL,
+  `action` varchar(100) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*Data for the table `tbl_actlog` */
+
+insert  into `tbl_actlog`(`id`,`emp_id`,`username`,`user_type`,`date`,`action`) values 
+(1,0,NULL,NULL,'2021-03-22','Employee Timeout'),
+(3,NULL,'lebby','0','2021-03-22','LOGGED IN'),
+(4,2,NULL,NULL,NULL,'LOGGED IN'),
+(5,3,NULL,NULL,NULL,'LOGGED IN'),
+(6,1,NULL,NULL,NULL,'LOGGED IN'),
+(41,2,NULL,NULL,NULL,'LOGGED IN'),
+(42,1,NULL,NULL,NULL,'LOGGED IN'),
+(43,1,NULL,NULL,NULL,'LOGGED IN');
+
+/* Trigger structure for table `tbl_summaryhours` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `trg_insertemployee` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `trg_insertemployee` AFTER INSERT ON `tbl_summaryhours` FOR EACH ROW BEGIN
+ INSERT INTO tbl_actlog SET ACTION = 'Employee Timein', date= new.date, id = new.id ,emp_id = new.emp_id = NOW(); 
+ 
+    END */$$
+
+
+DELIMITER ;
+
+/* Trigger structure for table `tbl_timeout` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `trg_timeout` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `trg_timeout` AFTER INSERT ON `tbl_timeout` FOR EACH ROW BEGIN
+ INSERT INTO tbl_actlog SET ACTION = 'Employee Timeout', date= new.date, id = new.id ,emp_id = new.emp_id = NOW(); 
+    END */$$
+
+
+DELIMITER ;
+
+/* Trigger structure for table `tbl_user` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `trg_userlogin` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `trg_userlogin` AFTER INSERT ON `tbl_user` FOR EACH ROW BEGIN
+ INSERT INTO tbl_actlog SET ACTION = 'LOGGED IN', id = new.id ,emp_id = new.emp_id, date = new.date_created, username = new.username, user_type = new.user_type = NOW(); 
+ 
+    END */$$
+
+
+DELIMITER ;
+
+/* Trigger structure for table `tbl_user` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `trg_updateuser` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `trg_updateuser` BEFORE UPDATE ON `tbl_user` FOR EACH ROW BEGIN
+INSERT INTO tbl_actlog SET ACTION = 'update' ,id = old.id ,emp_id = old.emp_id, DATE = old.date_created, username = old.username, user_type = old.user_type = NOW();     
+    
+    
+    END */$$
+
+
+DELIMITER ;
+
+/* Trigger structure for table `tbl_user` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `trg_deleteuser` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `trg_deleteuser` BEFORE DELETE ON `tbl_user` FOR EACH ROW BEGIN
+INSERT INTO tbl_actlog SET ACTION = 'delete' ,id = old.id ,emp_id = old.emp_id, DATE = old.date_created, username = old.username, user_type = old.user_type = NOW();     
+  
+    END */$$
+
+
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
